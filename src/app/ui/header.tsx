@@ -9,7 +9,7 @@ export default function Header() {
         DICTALE
       </h2>
       <Link 
-        href='/dictale/tutorial'
+        href='/tutorial'
         className='flex items-center justify-center p-2 rounded-lg hover:bg-green-50 text-gray-600 hover:text-green-600 transition-all duration-200 hover:shadow-md transform hover:scale-110 active:scale-95'
       >
         <QuestionMarkCircleIcon width={24} height={24}/>

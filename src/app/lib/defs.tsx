@@ -25,14 +25,14 @@ export class Letter
 
   guess(prompt: string) 
   {
-    if (prompt === this.letter.toLowerCase())
+    if (!this.revealed && prompt === this.letter.toLowerCase())
       this.reveal(true)
   }
 
   reveal(green: boolean)
   {
     this.revealed = true
-    this.green = green
+    this.green = this.green || green
   }
 }
 

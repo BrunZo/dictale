@@ -21,7 +21,12 @@ export default function Definitions({ definitions, revealingWord, revealedWords,
     <div className='flex flex-col gap-4 font-mono'>
       {definitions.map((def, i) => (
         <div key={i} className='flex flex-wrap items-start gap-x-4 gap-y-2'>
-          <span className='font-bold text-lg text-indigo-600 min-w-[24px]'>{i+1}.</span>
+          <span className={clsx({
+            'font-bold text-lg text-indigo-600 min-w-[24px]': true,
+            'px-2 py-1': revealingWord
+          })}>
+            {i+1}.
+          </span>
           {def.words.map((word, j) => {
             const wordRevealed = isWordRevealed(i, j)
             const isClickable = revealingWord && !wordRevealed
@@ -31,8 +36,9 @@ export default function Definitions({ definitions, revealingWord, revealedWords,
                 key={j} 
                 className={clsx(
                   'flex gap-x-1 transition-all duration-200',
+                  revealingWord ? 'px-2 py-1' : '',
                   isClickable 
-                    ? 'cursor-pointer hover:bg-yellow-100 hover:shadow-md rounded-lg px-2 py-1 transform hover:scale-105' 
+                    ? 'cursor-pointer hover:bg-yellow-100 hover:shadow-md rounded-lg transform hover:scale-105' 
                     : ''
                 )}
                 onClick={() => handleWordClick(i, j)}

@@ -128,9 +128,6 @@ export default function Page()
           'bg-white/90 backdrop-blur-sm border-2 rounded-xl p-6 relative z-20 shadow-lg transition-all duration-300',
           revealingWord ? 'ring-4 ring-yellow-400 ring-opacity-60 shadow-2xl scale-105' : 'border-gray-200 hover:shadow-xl'
         )}>
-          <div className='bg-icon-container'>
-            <i className='fa fa-bookmark top-left-bookmark' />
-          </div>
           <Definitions 
             definitions={game.definitions}
             revealingWord={revealingWord}

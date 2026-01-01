@@ -3,7 +3,7 @@ import { WordToGuess, Letter } from "../lib/defs";
 
 export default function FinalWord({ wordToGuess, onFinalWordChange }: {
   wordToGuess: WordToGuess
-  onFinalWordChange: (string) => void
+  onFinalWordChange: (value: string) => void
 }) {
   const [finalWord, setFinalWord] = useState('_'.repeat(wordToGuess.content.length))
   const [focusedIndex, setFocusedIndex] = useState(-1)
@@ -76,9 +76,9 @@ export function LetterField({ letter, focused, onChange, onFull, onEmpty }: {
           onEmpty()
         else if (e.key == 'ArrowRight') 
           onFull()
-  	else if (value != '')
-	  onFull()
-  	setValueAfter(value)
+        else if (value != '')
+          onFull()
+        setValueAfter(value)
       }}
     />
   );

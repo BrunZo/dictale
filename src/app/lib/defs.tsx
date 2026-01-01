@@ -1,4 +1,4 @@
-import {immerable} from "immer"
+import { immerable } from 'immer';
 
 String.prototype.toPlainLetters = function() 
 {
@@ -23,11 +23,16 @@ export class Letter
     this.green = false
   }
 
-  reveal(prompt?: string, green?: boolean) 
+  guess(prompt: string) 
   {
-    if (!this.revealed && (!prompt || prompt == this.letter))
-      this.green = green
-    this.revealed = this.revealed || !prompt || prompt == this.letter
+    if (prompt === this.letter.toLowerCase())
+      this.reveal(true)
+  }
+
+  reveal(green: boolean)
+  {
+    this.revealed = true
+    this.green = green
   }
 }
 
@@ -42,7 +47,7 @@ export class Word
     this.letters = content.split('').map(letter => new Letter(letter))
   }
 
-  isEqual(prompt: string): string
+  isEqual(prompt: string): boolean
   {
     return this.content.toPlainLetters() == prompt
   }
@@ -57,22 +62,27 @@ export class Word
     return this.letters.filter(letter => letter.revealed && isValidLetter(letter.letter)).length
   }
 
+  isFullyRevealed(): boolean
+  {
+    return this.getRevealedLetterCount() === this.getLetterCount()
+  }
+
   guess(prompt: string)
   {
     if (this.isEqual(prompt)) 
     {
-      this.letters.forEach(letter => letter.reveal())
+      this.letters.forEach(letter => letter.reveal(false))
     }
   }
 
-  revealLetter(prompt: string) 
+  guessLetter(prompt: string) 
   {
-    this.letters.forEach(letter => letter.reveal(prompt, true))
+    this.letters.forEach(letter => letter.guess(prompt))
   }
 
-  reveal()
+  reveal(green: boolean)
   {
-    this.letters.forEach(letter => letter.reveal())
+    this.letters.forEach(letter => letter.reveal(green))
   }
 }
 
@@ -105,14 +115,14 @@ export class Definition
     this.words.forEach(word => word.guess(prompt))
   }
 
-  revealLetter(prompt: string)
+  guessLetter(prompt: string)
   {
-    this.words.forEach(word => word.revealLetter(prompt))
+    this.words.forEach(word => word.guessLetter(prompt))
   }
 
-  reveal()
+  reveal(green: boolean)
   {
-    this.words.forEach(word => word.reveal())
+    this.words.forEach(word => word.reveal(green))
   }
 }
 
@@ -126,6 +136,8 @@ export class Game
   guessedWords: string[]
   revealedLetters: string[]
   revealedWords: number[][]
+  uncoveredWords: string[]
+  failedWords: string[]
 
   constructor(word: string, definitions: string[])
   {
@@ -134,6 +146,35 @@ export class Game
     this.guessedWords = []
     this.revealedLetters = []
     this.revealedWords = []
+    this.uncoveredWords = []
+    this.failedWords = []
+  }
+
+  getAllWordsInDefinitions(): string[]
+  {
+    const words: string[] = []
+    this.definitions.forEach(def => {
+      def.words.forEach(word => {
+        const plainWord = word.content.toPlainLetters()
+        if (plainWord && !words.includes(plainWord)) {
+          words.push(plainWord)
+        }
+      })
+    })
+    return words
+  }
+
+  getFullyRevealedWordPositions(): number[][]
+  {
+    const positions: number[][] = []
+    this.definitions.forEach((def, defIndex) => {
+      def.words.forEach((word, wordIndex) => {
+        if (word.isFullyRevealed()) {
+          positions.push([defIndex, wordIndex])
+        }
+      })
+    })
+    return positions
   }
 
   getLetterCount()
@@ -148,54 +189,83 @@ export class Game
 
   riskWordToGuess(prompt: string): 'not-full' | 'correct' | 'wrong'
   {
-    if (!prompt)
-      return 'empty'
-
-    prompt = prompt.toPlainLetters()
-
-    if (this.wordToGuess.isEqual(prompt))
+    if (prompt.length < this.wordToGuess.getLetterCount())
+      return 'not-full'
+    else if (this.wordToGuess.isEqual(prompt.toPlainLetters()))
       return 'correct'
     else
       return 'wrong'
   }
 
-  guessWord(prompt: string): 'empty' | 'already-guessed' | 'ok'
+  guessWord(prompt: string): 'empty' | 'already-guessed' | 'not-found' | 'ok'
   { 
-    if (!prompt)
+    let plainPrompt = prompt.toPlainLetters()
+
+    if (!plainPrompt)
       return 'empty'
 
-    if (this.guessedWords.includes(prompt))
+    if (this.guessedWords.includes(plainPrompt))
       return 'already-guessed'
 
-    prompt = prompt.toPlainLetters()
+    this.guessedWords.push(plainPrompt)
 
-    this.definitions.forEach(def => def.guessWord(prompt))
-    this.guessedWords.push(prompt)
+    const wordsInDef = this.getAllWordsInDefinitions()
+    const wordFound = wordsInDef.includes(plainPrompt)
 
+    if (!wordFound) {
+      this.failedWords.push(plainPrompt)
+      return 'not-found'
+    }
+
+    this.definitions.forEach(def => def.guessWord(plainPrompt))
     return 'ok'
   }
 
-  revealLetter(prompt: string): 'empty' | 'invalid-letter' | 'already-revealed' | 'ok'
+  guessLetter(prompt: string): 'empty' | 'invalid-letter' | 'already-revealed' | 'no-letters-left' | 'ok'
   {
-    if (!prompt)
+    let plainPrompt = prompt.toPlainLetters()
+
+    if (!plainPrompt)
       return 'empty'
 
-    if (!isValidLetter(prompt))
+    if (!isValidLetter(plainPrompt))
       return 'invalid-letter'
 
-    if (this.revealedLetters.includes(prompt))
+    if (this.revealedLetters.includes(plainPrompt))
       return 'already-revealed'
 
-    prompt = prompt.toLowerCase()
-    this.definitions.forEach(def => def.revealLetter(prompt))
-    this.revealedLetters.push(prompt)
+    if (this.revealedLetters.length >= 3)
+      return 'no-letters-left'
+
+    this.definitions.forEach(def => def.guessLetter(plainPrompt))
+    this.wordToGuess.guessLetter(plainPrompt)
+    this.revealedLetters.push(plainPrompt)
 
     return 'ok'
   }
 
-  revealWord(position: number[]): 'empty' | 'invalid-position' | 'already-revealed' | 'ok'
+  revealWord(position: number[]): 'empty' | 'invalid-position' | 'already-revealed' | 'no-reveals-left' | 'ok'
   {
-    // TODO
+    if (!position || position.length !== 2)
+      return 'invalid-position'
+
+    const [defIndex, wordIndex] = position
+    
+    if (defIndex < 0 || defIndex >= this.definitions.length)
+      return 'invalid-position'
+    
+    if (wordIndex < 0 || wordIndex >= this.definitions[defIndex].words.length)
+      return 'invalid-position'
+
+    const word = this.definitions[defIndex].words[wordIndex]
+    
+    if (word.isFullyRevealed())
+      return 'already-revealed'
+
+    if (this.revealedWords.length >= 3)
+      return 'no-reveals-left'
+
+    word.reveal(true)
     this.revealedWords.push(position)
     return 'ok'
   }

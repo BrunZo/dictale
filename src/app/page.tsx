@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { produce } from 'immer';
 import clsx from 'clsx';
 
@@ -38,6 +38,7 @@ export default function Page()
   const [revealingWord, setRevealingWord] = useState<boolean>(false)
   const [gameEnded, setGameEnded] = useState<boolean>(false)
   const [gameWon, setGameWon] = useState<boolean>(false)
+  const definitionsBoxRef = useRef<HTMLDivElement>(null)
 
   const riskWordToGuess = () => {
     if (gameEnded) return
@@ -105,6 +106,23 @@ export default function Page()
 
   const progress = Math.floor(100 * game.getRevealedLetterCount() / game.getLetterCount())
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (revealingWord && definitionsBoxRef.current && !definitionsBoxRef.current.contains(event.target as Node)) {
+        setRevealingWord(false)
+        setGuessedWordError('')
+      }
+    }
+
+    if (revealingWord) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [revealingWord])
+
   return (
     <div className='flex flex-col items-center relative min-h-screen py-8 px-4'>
       {revealingWord && (
@@ -124,16 +142,19 @@ export default function Page()
             </div>
           </div>
         </div>
-        <div className={clsx(
-          'bg-white/90 backdrop-blur-sm border-2 rounded-xl p-6 relative z-20 shadow-lg transition-all duration-300',
-          revealingWord ? 'ring-4 ring-yellow-400 ring-opacity-60 shadow-2xl scale-105' : 'border-gray-200 hover:shadow-xl'
-        )}>
+        <div 
+          ref={definitionsBoxRef}
+          className={clsx(
+            'bg-white/90 backdrop-blur-sm border-2 rounded-xl p-6 relative z-20 shadow-lg transition-all duration-300',
+            revealingWord ? 'ring-4 ring-yellow-400 ring-opacity-60 shadow-2xl scale-105' : 'border-gray-200 hover:shadow-xl'
+          )}
+        >
           <Definitions 
-            definitions={game.definitions}
-            revealingWord={revealingWord}
-            revealedWords={game.getFullyRevealedWordPositions()}
-            onWordClick={revealWord}
-          />
+          definitions={game.definitions}
+          revealingWord={revealingWord}
+          revealedWords={game.getFullyRevealedWordPositions()}
+          onWordClick={revealWord}
+        />
         </div>
         <div className={clsx({
           'blur-sm opacity-50 pointer-events-none transition-all duration-300': revealingWord,

@@ -5,7 +5,6 @@ import { produce } from 'immer';
 import clsx from 'clsx';
 
 import Header from './ui/header';
-import Target from './ui/target';
 import SurrenderButton from './ui/surrender-button';
 import RiskFinalButton from './ui/risk-final-button';
 import FinalWord from './ui/final-word';
@@ -107,25 +106,28 @@ export default function Page()
   const progress = Math.floor(100 * game.getRevealedLetterCount() / game.getLetterCount())
 
   return (
-    <div className='flex flex-col items-center relative'>
+    <div className='flex flex-col items-center relative min-h-screen py-8 px-4'>
       {revealingWord && (
-        <div className='fixed inset-0 bg-black bg-opacity-20 z-0' />
+        <div className='fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm z-0 transition-all duration-300' />
       )}
-      <div className='flex flex-col gap-2 unselectable pt-3 w-1/3 relative z-10'>
+      <div className='flex flex-col gap-4 unselectable pt-3 w-full max-w-2xl relative z-10'>
         <div className={clsx({
-          'blur-sm opacity-50 pointer-events-none': revealingWord
+          'blur-sm opacity-50 pointer-events-none transition-all duration-300': revealingWord
         })}>
           <Header />
-          <hr />
-          <div className='relative mt-4 mb-2'>
-            <div className='flex justify-center gap-2'>
+          <hr className='border-gray-300 my-4' />
+          <div className='relative mt-6 mb-4'>
+            <div className='flex justify-center items-center gap-3'>
               <SurrenderButton />
               <FinalWord wordToGuess={game.wordToGuess} onFinalWordChange={setFinalWord}/>
               <RiskFinalButton riskWordToGuessHandler={riskWordToGuess} disabled={gameEnded} />
             </div>
           </div>
         </div>
-        <div className={`border rounded-md p-2 relative z-20 ${revealingWord ? 'ring-4 ring-yellow-400 ring-opacity-50 shadow-2xl bg-white' : ''}`}>
+        <div className={clsx(
+          'bg-white/90 backdrop-blur-sm border-2 rounded-xl p-6 relative z-20 shadow-lg transition-all duration-300',
+          revealingWord ? 'ring-4 ring-yellow-400 ring-opacity-60 shadow-2xl scale-105' : 'border-gray-200 hover:shadow-xl'
+        )}>
           <div className='bg-icon-container'>
             <i className='fa fa-bookmark top-left-bookmark' />
           </div>
@@ -137,8 +139,8 @@ export default function Page()
           />
         </div>
         <div className={clsx({
-          'blur-sm opacity-50 pointer-events-none': revealingWord,
-          'flex flex-col gap-2': true,
+          'blur-sm opacity-50 pointer-events-none transition-all duration-300': revealingWord,
+          'flex flex-col gap-4': true,
         })}>
           <Progress progress={progress}/>
           <div className='flex flex-col gap-4'>
@@ -149,31 +151,32 @@ export default function Page()
               />
             </div>
             {game.failedWords.length > 0 && (
-              <div className='flex-shrink-0 w-full border rounded-md p-2'>
-                <div className='text-sm font-semibold underline mb-1'>
+              <div className='flex-shrink-0 w-full bg-red-50 border-2 border-red-200 rounded-lg p-4 shadow-sm'>
+                <div className='text-sm font-semibold text-red-700 mb-2 flex items-center gap-2'>
+                  <span className='text-red-500'>✗</span>
                   Fallos ({game.failedWords.length})
                 </div>
-                <ul className='text-xs space-y-1'>
+                <ul className='text-xs space-y-1 text-red-600'>
                   {game.failedWords.length > 6 ? (
                     <>
                       {game.failedWords.slice(0, 2).map((word, i) => (
-                        <li key={i}>{word.toUpperCase()}</li>
+                        <li key={i} className='font-mono'>{word.toUpperCase()}</li>
                       ))}
-                      <li className='text-gray-500'>...</li>
+                      <li className='text-gray-400'>...</li>
                       {game.failedWords.slice(-3).map((word, i) => (
-                        <li key={game.failedWords.length - 3 + i}>{word.toUpperCase()}</li>
+                        <li key={game.failedWords.length - 3 + i} className='font-mono'>{word.toUpperCase()}</li>
                       ))}
                     </>
                   ) : (
                     game.failedWords.map((word, i) => (
-                      <li key={i}>{word.toUpperCase()}</li>
+                      <li key={i} className='font-mono'>{word.toUpperCase()}</li>
                     ))
                   )}
                 </ul>
               </div>
             )}
           </div>
-          <div className='flex justify-center gap-4 mt-1'>
+          <div className='flex justify-center gap-4 mt-2'>
             <RevealLetterInput
               revealedLetters={game.revealedLetters}
               revealLetterHandler={revealLetter}
@@ -184,12 +187,20 @@ export default function Page()
             />
           </div>
           {gameEnded && (
-            <div className='mt-4 p-4 border rounded-md text-center'>
-              <div className={`text-2xl font-bold ${gameWon ? 'text-green-600' : 'text-red-600'}`}>
-                {gameWon ? '¡Has adivinado la palabra!' : 'Más suerte la próxima vez...'}
+            <div className={clsx(
+              'mt-6 p-6 border-2 rounded-xl text-center shadow-lg transition-all duration-300',
+              gameWon 
+                ? 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-300' 
+                : 'bg-gradient-to-br from-red-50 to-rose-50 border-red-300'
+            )}>
+              <div className={clsx(
+                'text-3xl font-bold mb-3',
+                gameWon ? 'text-green-600' : 'text-red-600'
+              )}>
+                {gameWon ? '🎉 ¡Has adivinado la palabra!' : '😔 Más suerte la próxima vez...'}
               </div>
-              <div className='mt-2 text-sm text-gray-600'>
-                La palabra era: <span className='font-bold'>{game.wordToGuess.content.toUpperCase()}</span>
+              <div className='mt-2 text-base text-gray-700'>
+                La palabra era: <span className='font-bold text-gray-900'>{game.wordToGuess.content.toUpperCase()}</span>
               </div>
             </div>
           )}

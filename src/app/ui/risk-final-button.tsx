@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
 
 export default function RiskFinalButton({ riskWordToGuessHandler, disabled } : {
@@ -7,7 +8,12 @@ export default function RiskFinalButton({ riskWordToGuessHandler, disabled } : {
   return (
     <div>
       <button 
-        className={`flex items-center ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100 rounded'}`}
+        className={clsx(
+          'flex items-center justify-center p-2 rounded-lg transition-all duration-200',
+          disabled 
+            ? 'opacity-50 cursor-not-allowed text-gray-400' 
+            : 'hover:bg-indigo-100 text-indigo-600 hover:text-indigo-700 hover:shadow-md transform hover:scale-110 active:scale-95'
+        )}
         onClick={riskWordToGuessHandler}
         disabled={disabled}
       >

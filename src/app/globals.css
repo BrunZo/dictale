@@ -1,1 +1,24 @@
 @import "tailwindcss";
+
+@layer base {
+  body {
+    @apply bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 min-h-screen;
+  }
+}
+
+@layer utilities {
+  .unselectable {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+  
+  .bg-icon-container {
+    @apply absolute top-0 left-0 w-full h-full pointer-events-none;
+  }
+  
+  .top-left-bookmark {
+    @apply absolute top-2 left-2 text-yellow-400 opacity-20 text-2xl;
+  }
+}

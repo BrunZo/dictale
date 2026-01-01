@@ -45,40 +45,40 @@ export default function RevealLetterInput({ revealedLetters, revealLetterHandler
     <div ref={divRef} className='relative flex flex-col w-full'>
       <button
         className={clsx({
-          'w-full text-white pb-2 rounded-full': true,
-          'bg-green-500 hover:bg-green-700': revealedLetters.length < 3,
+          'w-full text-white pb-3 pt-3 rounded-xl font-semibold shadow-lg transition-all duration-200': true,
+          'bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 hover:shadow-xl transform hover:scale-105 active:scale-95': revealedLetters.length < 3,
           'bg-gray-300 cursor-not-allowed': revealedLetters.length === 3
         })}
         onClick={clickHandler}
       >
-        <span className='text-xl font-mono'> LETRA </span>
-        <div className='flex gap-2 justify-center'>
+        <span className='text-lg font-mono tracking-wide'> LETRA </span>
+        <div className='flex gap-2 justify-center mt-1'>
           <div className={clsx({
-            'w-1 h-1 rounded-full': true,
-            'bg-white': revealedLetters.length === 0,
+            'w-2 h-2 rounded-full transition-all duration-200': true,
+            'bg-white shadow-sm': revealedLetters.length === 0,
             'bg-gray-300': revealedLetters.length > 0
           })} />
           <div className={clsx({
-            'w-1 h-1 rounded-full': true,
-            'bg-white': revealedLetters.length <= 1,
+            'w-2 h-2 rounded-full transition-all duration-200': true,
+            'bg-white shadow-sm': revealedLetters.length <= 1,
             'bg-gray-300': revealedLetters.length > 1
           })} />
           <div className={clsx({
-            'w-1 h-1 rounded-full': true,
-            'bg-white': revealedLetters.length <= 2,
+            'w-2 h-2 rounded-full transition-all duration-200': true,
+            'bg-white shadow-sm': revealedLetters.length <= 2,
             'bg-gray-300': revealedLetters.length > 2
           })} />
         </div>
       </button>
       <div className={clsx({
-        'absolute top-full left-2/3 w-12 h-12 rounded-b-md border-x-2 border-b-2 border-gray-200 p-1': true,
+        'absolute top-full left-2/3 w-14 h-14 rounded-b-lg border-2 border-gray-300 bg-white p-1 shadow-xl z-50': true,
         'hidden': inputHidden
       })}>
         <input
           ref={inputRef}
           value={inputValue}
           type='text'
-          className='w-full h-full text-center text-2xl uppercase border-b-2 border-gray-500'
+          className='w-full h-full text-center text-3xl uppercase border-b-2 border-indigo-500 focus:outline-none focus:border-indigo-600 font-bold'
           maxLength={1}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={(e) => { if (e.key === 'Enter') clickHandler() }}

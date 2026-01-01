@@ -36,7 +36,7 @@ export default function FinalWord({ wordToGuess, onFinalWordChange }: {
 }
 
 export function LetterField({ letter, focused, onChange, onFull, onEmpty }: {
-  letter: Letter
+  letter: Letter // TODO: use this if revealed 
   focused: boolean
   onChange: (value: string) => void
   onFull: () => void
@@ -65,7 +65,7 @@ export function LetterField({ letter, focused, onChange, onFull, onEmpty }: {
   return (
     <input 
       ref={inputRef}
-      className='text-xl font-mono w-4 border-b border-black text-center uppercase'
+      className='text-2xl font-bold font-mono w-8 border-b-2 border-gray-400 text-center uppercase focus:outline-none focus:border-indigo-500 transition-colors duration-200 bg-transparent text-gray-700'
       value={value}
       maxLength={1}
       onChange={e => changeHandler(e.target.value)}

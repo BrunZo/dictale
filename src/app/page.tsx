@@ -189,7 +189,7 @@ export default function Page()
                   <span className='text-red-500'>✗</span>
                   Fallos ({game.failedWords.length})
                 </div>
-                <ul className='text-xs space-y-1 text-red-600'>
+                <ul className='text-xs text-red-600 flex flex-wrap gap-2 items-center'>
                   {game.failedWords.length > 6 ? (
                     <>
                       {game.failedWords.slice(0, 2).map((word, i) => (

@@ -79,6 +79,9 @@ def process(word_list: Optional[List[str]] = None, word_limit: Optional[int] = N
             if isinstance(raw_gloss, str) and raw_gloss.strip():
               word_defs.append(raw_gloss.strip())
         
+        if len(' '.join(word_defs)) < 100:
+          continue
+        
         if word_defs:
           seen = set()
           unique_defs = []

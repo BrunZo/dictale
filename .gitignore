@@ -11,6 +11,3 @@ __pycache__/
 
 # private data
 /private
-
-# dictionary files (too large for git)
-public/data/*.json

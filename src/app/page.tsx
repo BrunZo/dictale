@@ -14,6 +14,7 @@ import GuessWordInput from './ui/guess-word-input';
 import RevealLetterInput from './ui/reveal-letter';
 import RevealWordInput from './ui/reveal-word';
 import { Game } from './lib/defs';
+import { getWordOfTheDay } from './lib/dictionary';
 
 const errorMessages = {
   'empty': 'Por favor, ingrese una palabra.',
@@ -31,7 +32,8 @@ const errorMessages = {
 
 export default function Page() 
 {
-  const [game, setGame] = useState<Game>(new Game('vida', ['Hecho de estar vivo.']))
+  const [game, setGame] = useState<Game | null>(null)
+  const [loading, setLoading] = useState<boolean>(true)
 
   const [finalWord, setFinalWord] = useState<string>('')
   const [guessedWordError, setGuessedWordError] = useState<string>('')
@@ -40,71 +42,15 @@ export default function Page()
   const [gameWon, setGameWon] = useState<boolean>(false)
   const definitionsBoxRef = useRef<HTMLDivElement>(null)
 
-  const riskWordToGuess = () => {
-    if (gameEnded) return
-    
-    if (finalWord.includes('_') || !finalWord) {
-      setGuessedWordError('Por favor, complete la palabra final.')
-      return
-    }
-
-    setGame(produce(game, draft => {
-      const response = draft.riskWordToGuess(finalWord)
-      if (response === 'correct') {
-        setGameWon(true)
-        setGameEnded(true)
-      } else if (response === 'wrong') {
-        setGameWon(false)
-        setGameEnded(true)
-      } else {
-        setGuessedWordError(errorMessages[response] || 'Error desconocido.')
-      }
-    }))
-  }
-  
-  const guessWord = (prompt: string) => {
-    if (gameEnded) return
-    
-    setGame(produce(game, draft => {
-      const response = draft.guessWord(prompt)
-      setGuessedWordError(errorMessages[response])
-    }))
-  }
-
-  const revealLetter = (letter: string) => {
-    if (gameEnded) return
-    
-    setGame(produce(game, draft => {
-      const response = draft.guessLetter(letter)
-      setGuessedWordError(errorMessages[response])
-    }))
-  }
-
-  const startRevealWord = () => {
-    if (gameEnded) return
-  
-    if (game.revealedWords.length >= 3) {
-      setGuessedWordError(errorMessages['no-reveals-left'])
-      return
+  useEffect(() => {
+    async function initializeGame() {
+      const wordData = await getWordOfTheDay();
+      setGame(new Game(wordData.word, wordData.definitions));
+      setLoading(false);
     }
     
-    setRevealingWord(!revealingWord)
-    setGuessedWordError('')
-  }
-
-  const revealWord = (position: number[]) => {
-    if (gameEnded || !revealingWord) return
-    
-    setGame(produce(game, draft => {
-      const response = draft.revealWord(position)
-      if (response === 'ok')
-        setRevealingWord(false)
-      else
-        setGuessedWordError(errorMessages[response] || 'Error al revelar palabra.')
-    }))
-  }
-
-  const progress = Math.floor(100 * game.getRevealedLetterCount() / game.getLetterCount())
+    initializeGame();
+  }, [])
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -123,6 +69,75 @@ export default function Page()
     }
   }, [revealingWord])
 
+  const riskWordToGuess = () => {
+    if (gameEnded || !game) return
+
+    setGame(produce(game, draft => {
+      if (!draft) return
+      const response = draft.riskWordToGuess(finalWord)
+      if (response === 'correct') {
+        setGameWon(true)
+        setGameEnded(true)
+      } else if (response === 'wrong') {
+        setGameWon(false)
+        setGameEnded(true)
+      } else {
+        setGuessedWordError(errorMessages[response] || 'Error desconocido.')
+      }
+    }))
+  }
+  
+  const guessWord = (prompt: string) => {
+    if (gameEnded || !game) return
+    setGame(produce(game, draft => {
+      if (!draft) return
+      const response = draft.guessWord(prompt)
+      setGuessedWordError(errorMessages[response])
+    }))
+  }
+
+  const revealLetter = (letter: string) => {
+    if (gameEnded || !game) return
+    setGame(produce(game, draft => {
+      if (!draft) return
+      const response = draft.guessLetter(letter)
+      setGuessedWordError(errorMessages[response])
+    }))
+  }
+
+  const startRevealWord = () => {
+    if (gameEnded || !game) return
+    if (game.revealedWords.length >= 3) {
+      setGuessedWordError(errorMessages['no-reveals-left'])
+      return
+    }
+    
+    setRevealingWord(!revealingWord)
+    setGuessedWordError('')
+  }
+
+  const revealWord = (position: number[]) => {
+    if (gameEnded || !revealingWord || !game) return
+    
+    setGame(produce(game, draft => {
+      if (!draft) return
+      const response = draft.revealWord(position)
+      if (response === 'ok')
+        setRevealingWord(false)
+      else
+        setGuessedWordError(errorMessages[response] || 'Error desconocido.')
+    }))
+  }
+
+  if (loading || !game) {
+    return (
+      <div className='flex flex-col items-center justify-center min-h-screen'>
+        <div className='text-lg text-gray-600'>Cargando...</div>
+      </div>
+    )
+  }
+
+  const progress = Math.floor(100 * game.getRevealedLetterCount() / game.getLetterCount())
   return (
     <div className='flex flex-col items-center relative min-h-screen py-8 px-4'>
       {revealingWord && (

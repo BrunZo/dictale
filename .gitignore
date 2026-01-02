@@ -2,7 +2,15 @@
 /node_modules
 
 # Next.js build output
-/.next/
+.next/
+
+# python
+.venv/
+__pycache__/
+*.pyc
 
 # private data
 /private
+
+# dictionary files (too large for git)
+public/data/*.json

@@ -4,17 +4,17 @@ import { useState, useRef, useEffect } from 'react';
 import { produce } from 'immer';
 import clsx from 'clsx';
 
-import Header from './ui/header';
-import SurrenderButton from './ui/surrender-button';
-import RiskFinalButton from './ui/risk-final-button';
-import FinalWord from './ui/final-word';
-import Definitions from './ui/definitions';
-import Progress from './ui/progress';
-import GuessWordInput from './ui/guess-word-input';
-import RevealLetterInput from './ui/reveal-letter';
-import RevealWordInput from './ui/reveal-word';
-import { Game } from './lib/defs';
-import { getWordOfTheDay } from './lib/dictionary';
+import Header from '../ui/header';
+import SurrenderButton from '../ui/surrender-button';
+import RiskFinalButton from '../ui/risk-final-button';
+import FinalWord from '../ui/final-word';
+import Definitions from '../ui/definitions';
+import Progress from '../ui/progress';
+import GuessWordInput from '../ui/guess-word-input';
+import RevealLetterInput from '../ui/reveal-letter';
+import RevealWordInput from '../ui/reveal-word';
+import { Game } from '../lib/defs';
+import { getWordOfTheDay } from '../lib/dictionary';
 
 const errorMessages = {
   'empty': 'Por favor, ingrese una palabra.',

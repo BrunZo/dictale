@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import Header from '../ui/header';
+import Header from '../../ui/header';
 
 export default function TutorialPage() {
   return (

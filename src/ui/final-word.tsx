@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import { WordToGuess, Letter } from "../lib/defs";
 
-export default function FinalWord({ wordToGuess, onFinalWordChange, riskFinalWord }: {
+export default function FinalWord({ wordToGuess, onFinalWordChange, riskFinalWord, disabled }: {
   wordToGuess: WordToGuess
   onFinalWordChange: (value: string) => void
   riskFinalWord: () => void
+  disabled: boolean
 }) {
   const [finalWord, setFinalWord] = useState('_'.repeat(wordToGuess.content.length))
   const [focusedIndex, setFocusedIndex] = useState(-1)
@@ -30,18 +31,20 @@ export default function FinalWord({ wordToGuess, onFinalWordChange, riskFinalWor
           onFull={() => setFocusedIndex(i + 1)}
           onEmpty={() => setFocusedIndex(i - 1)}
           onEnter={riskFinalWord}
+	  disabled={disabled}
         />
       })}
     </span>
   );
 }
 
-export function LetterField({ focused, onChange, onFull, onEmpty, onEnter }: {
+export function LetterField({ focused, onChange, onFull, onEmpty, onEnter, disabled }: {
   focused: boolean
   onChange: (value: string) => void
   onFull: () => void
   onEmpty: () => void
   onEnter: () => void
+  disabled: boolean
 }) {
   const [value, setValue] = useState('')
   const [valueAfter, setValueAfter] = useState('')
@@ -68,6 +71,7 @@ export function LetterField({ focused, onChange, onFull, onEmpty, onEnter }: {
       ref={inputRef}
       className='text-2xl font-bold font-mono w-8 border-b-2 border-gray-400 text-center uppercase focus:outline-none focus:border-indigo-500 transition-colors duration-200 bg-transparent text-gray-700'
       value={value}
+      disabled={disabled}
       maxLength={1}
       onChange={e => changeHandler(e.target.value)}
       onKeyUp={e => {

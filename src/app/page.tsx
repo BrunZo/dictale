@@ -157,7 +157,7 @@ export default function Page()
           <div className='relative mt-6 mb-4'>
             <div className='flex justify-center items-center gap-3'>
               <SurrenderButton onSurrender={() => { if (confirm('¿Estás seguro de que quieres rendirte?')) { setGameWon(false); setGameEnded(true); } }} disabled={gameEnded} />
-              <FinalWord wordToGuess={game.wordToGuess} onFinalWordChange={setFinalWord} riskFinalWord={riskWordToGuess}/>
+              <FinalWord wordToGuess={game.wordToGuess} onFinalWordChange={setFinalWord} riskFinalWord={riskWordToGuess} disabled={gameWon || gameEnded}/>
               <RiskFinalButton riskWordToGuessHandler={riskWordToGuess} disabled={gameEnded} />
             </div>
           </div>
